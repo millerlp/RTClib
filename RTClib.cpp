@@ -136,93 +136,53 @@ uint8_t RTC_DS1307::begin(void) {
 
 
 #if (ARDUINO >= 100)
-
-uint8_t RTC_DS1307::isrunning(void) {
-  Wire.beginTransmission(DS1307_ADDRESS);
-  Wire.write(i);	
-  Wire.endTransmission();
-
-  Wire.requestFrom(DS1307_ADDRESS, 1);
-  uint8_t ss = Wire.read();
-  return !(ss>>7);
-}
-
-void RTC_DS1307::adjust(const DateTime& dt) {
-    Wire.beginTransmission(DS1307_ADDRESS);
-    Wire.write(i);
-    Wire.write(bin2bcd(dt.second()));
-    Wire.write(bin2bcd(dt.minute()));
-    Wire.write(bin2bcd(dt.hour()));
-    Wire.write(bin2bcd(0));
-    Wire.write(bin2bcd(dt.day()));
-    Wire.write(bin2bcd(dt.month()));
-    Wire.write(bin2bcd(dt.year() - 2000));
-    Wire.write(i);
-    Wire.endTransmission();
-}
-
-DateTime RTC_DS1307::now() {
-  Wire.beginTransmission(DS1307_ADDRESS);
-  Wire.write(i);	
-  Wire.endTransmission();
-  
-  Wire.requestFrom(DS1307_ADDRESS, 7);
-  uint8_t ss = bcd2bin(Wire.read() & 0x7F);
-  uint8_t mm = bcd2bin(Wire.read());
-  uint8_t hh = bcd2bin(Wire.read());
-  Wire.read();
-  uint8_t d = bcd2bin(Wire.read());
-  uint8_t m = bcd2bin(Wire.read());
-  uint16_t y = bcd2bin(Wire.read()) + 2000;
-  
-  return DateTime (y, m, d, hh, mm, ss);
-}
-
+	#define WW_  Wire.write
+	#define WR_  Wire.read
 #else
-
-uint8_t RTC_DS1307::isrunning(void) {
-  Wire.beginTransmission(DS1307_ADDRESS);
-  Wire.send(i);	
-  Wire.endTransmission();
-
-  Wire.requestFrom(DS1307_ADDRESS, 1);
-  uint8_t ss = Wire.receive();
-  return !(ss>>7);
-}
-
-void RTC_DS1307::adjust(const DateTime& dt) {
-    Wire.beginTransmission(DS1307_ADDRESS);
-    Wire.send(i);
-    Wire.send(bin2bcd(dt.second()));
-    Wire.send(bin2bcd(dt.minute()));
-    Wire.send(bin2bcd(dt.hour()));
-    Wire.send(bin2bcd(0));
-    Wire.send(bin2bcd(dt.day()));
-    Wire.send(bin2bcd(dt.month()));
-    Wire.send(bin2bcd(dt.year() - 2000));
-    Wire.send(i);
-    Wire.endTransmission();
-}
-
-DateTime RTC_DS1307::now() {
-  Wire.beginTransmission(DS1307_ADDRESS);
-  Wire.send(i);	
-  Wire.endTransmission();
-  
-  Wire.requestFrom(DS1307_ADDRESS, 7);
-  uint8_t ss = bcd2bin(Wire.receive() & 0x7F);
-  uint8_t mm = bcd2bin(Wire.receive());
-  uint8_t hh = bcd2bin(Wire.receive());
-  Wire.receive();
-  uint8_t d = bcd2bin(Wire.receive());
-  uint8_t m = bcd2bin(Wire.receive());
-  uint16_t y = bcd2bin(Wire.receive()) + 2000;
-  
-  return DateTime (y, m, d, hh, mm, ss);
-}
-
+	#define WW_  Wire.send
+	#define WR_  Wire.receive
 #endif
 
+uint8_t RTC_DS1307::isrunning(void) {
+  Wire.beginTransmission(DS1307_ADDRESS);
+  WW_(i);	
+  Wire.endTransmission();
+
+  Wire.requestFrom(DS1307_ADDRESS, 1);
+  uint8_t ss = WR_();
+  return !(ss>>7);
+}
+
+void RTC_DS1307::adjust(const DateTime& dt) {
+    Wire.beginTransmission(DS1307_ADDRESS);
+    WW_(i);
+    WW_(bin2bcd(dt.second()));
+    WW_(bin2bcd(dt.minute()));
+    WW_(bin2bcd(dt.hour()));
+    WW_(bin2bcd(0));
+    WW_(bin2bcd(dt.day()));
+    WW_(bin2bcd(dt.month()));
+    WW_(bin2bcd(dt.year() - 2000));
+    WW_(i);
+    Wire.endTransmission();
+}
+
+DateTime RTC_DS1307::now() {
+  Wire.beginTransmission(DS1307_ADDRESS);
+  WW_(i);	
+  Wire.endTransmission();
+  
+  Wire.requestFrom(DS1307_ADDRESS, 7);
+  uint8_t ss = bcd2bin(WR_() & 0x7F);
+  uint8_t mm = bcd2bin(WR_());
+  uint8_t hh = bcd2bin(WR_());
+  WR_();
+  uint8_t d = bcd2bin(WR_());
+  uint8_t m = bcd2bin(WR_());
+  uint16_t y = bcd2bin(WR_()) + 2000;
+  
+  return DateTime (y, m, d, hh, mm, ss);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // RTC_Millis implementation
