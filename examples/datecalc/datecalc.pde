@@ -1,6 +1,7 @@
 // Simple date conversions and calculations
 
 #include <Wire.h>
+#include <SPI.h>  // not used here, but needed to prevent a RTClib compile error
 #include "RTClib.h"
 
 void showDate(const char* txt, const DateTime& dt) {

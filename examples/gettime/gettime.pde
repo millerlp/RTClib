@@ -2,11 +2,10 @@
 
 
 #include <Wire.h>
+#include <SPI.h>  // not used here, but needed to prevent a RTClib compile error
 #include "RTClib.h"
 
-RTC_DS1307 RTC;    // Uncommnt this line if you are using the DS1307 chip or only use the basic functions of DS1337, DS1340, Chronodot (DS3132)
-// RTC_DS1340 RTC;    // Uncomment this line if you are using the DS1340 chip
-// Chronodot RTC;     // Uncomment this line if you are using the Chronodot (DS3132) 
+RTC_DS1307 RTC;    // Uncommnt this line if you are using the DS1307 chip or only use the basic functions of DS1337, DS1340, Chronodot (DS3231)
 
 
 void setup () {

@@ -1,9 +1,8 @@
 // Set date and time using a DS1307 RTC connected via I2C
-// 
-// Connect SCL to Uno-Analog 0
-// Connect SDA to Uno-Analog 1
+
 
 #include <Wire.h>
+#include <SPI.h>  // not used here, but needed to prevent a RTClib compile error
 #include "RTClib.h"
 
 RTC_DS1307 RTC;     // Setup an instance of DS1307 naming it RTC
