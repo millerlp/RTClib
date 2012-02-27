@@ -20,6 +20,8 @@
 #endif
 
 int i = 0; //The new wire library needs to take an int when you are sending for the zero register
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // utility code, some of this could be exposed in the DateTime API if needed
 
@@ -225,6 +227,39 @@ DateTime RTC_DS1307::now() {
   
   return DateTime (y, m, d, hh, mm, ss);
 }
+
+uint8_t RTC_DS1307::readMemory(uint8_t offset, uint8_t* data, uint8_t length) {
+  uint8_t bytes_read = 0;
+
+  Wire.beginTransmission(DS1307_ADDRESS);
+  WW_(0x08 + offset);
+  Wire.endTransmission();
+  
+  Wire.requestFrom((uint8_t)DS1307_ADDRESS, (uint8_t)length);
+  while (Wire.available() > 0 && bytes_read < length) {
+    data[bytes_read] = WR_();
+    bytes_read++;
+  }
+
+  return bytes_read;
+}
+
+uint8_t RTC_DS1307::writeMemory(uint8_t offset, uint8_t* data, uint8_t length) {
+  uint8_t bytes_written;
+
+  Wire.beginTransmission(DS1307_ADDRESS);
+  WW_(0x08 + offset);
+#if (ARDUINO >= 100)
+  bytes_written =  WW_(data, length);
+  Wire.endTransmission();
+  return bytes_written;
+#else
+  WW_(data, length);
+  Wire.endTransmission();
+  return length;
+#endif  
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // RTC_DS3231 implementation
 

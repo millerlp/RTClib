@@ -1,11 +1,12 @@
 // Code by JeeLabs http://news.jeelabs.org/code/
 // Released to the public domain! Enjoy!
+ 
+// Merged read/write RAM memory functions from:  github.com/dmalec/RTClib   by  MrAlvin 2012-02-27
+// Merged DS3231 & DS3234 functions from: github/coobro/RTClib  by  MrAlvin 2012-02-27
 
-// Additions by MrAlvin. 
-// Merged text from: github/coobro/RTClib
 
-// Alarm code for DS3231 (Chronodot) heavily used/modified from Eric Ayars DS3231 library
-// His code is located at: http://hacks.ayars.org/2011/04/ds3231-real-time-clock.html
+// Alarm code for DS3231 (Chronodot) heavily used/modified from Eric Ayars DS3231 library  by  Coobro
+// Eric Ayars code is located at: http://hacks.ayars.org/2011/04/ds3231-real-time-clock.html
 
 #ifndef __RTCLIB_H__
 #define __RTCLIB_H__
@@ -50,6 +51,8 @@ public:
     static void adjust(const DateTime& dt);
     uint8_t isrunning(void);
     static DateTime now();
+    static uint8_t readMemory(uint8_t offset, uint8_t* data, uint8_t length);
+    static uint8_t writeMemory(uint8_t offset, uint8_t* data, uint8_t length);
 };
 
 
