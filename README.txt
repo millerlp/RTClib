@@ -37,10 +37,17 @@ Credits:
 
 - Optimized DS1307 code by ADAfruit and others
 
--  Merged read/write RAM memory functions from:  github.com/dmalec/RTClib   by  MrAlvin 2012-02-27
--  Merged DS3231 & DS3234 functions from: github/coobro/RTClib  by  MrAlvin 2012-02-27
-       Alarm code for DS3231 (Chronodot) heavily used/modified from Eric Ayars DS3231 library  by  Coobro
-       Eric Ayars code is located at: http://hacks.ayars.org/2011/04/ds3231-real-time-clock.html
+-  Merged read/write RAM memory functions from:  
+   github.com/dmalec/RTClib   by  MrAlvin 2012-02-27
+   
+-  Merged DS3231 & DS3234 functions from: 
+   github/coobro/RTClib  by  MrAlvin 2012-02-27
+
+       Alarm code for DS3231 (Chronodot) heavily used/modified 
+	   from Eric Ayars DS3231 library  by  Coobro
+    
+	   Eric Ayars code is located at: 
+	   http://hacks.ayars.org/2011/04/ds3231-real-time-clock.html
 
 -  Chronodot keyword added  by MrAlvin  2012-02-28 
 
