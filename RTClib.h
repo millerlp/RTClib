@@ -1,6 +1,7 @@
 // Code by JeeLabs http://news.jeelabs.org/code/
 // Released to the public domain! Enjoy!
- 
+
+// Chronodot keyword added  bt MrAlvin  2012-02-28 
 // Merged read/write RAM memory functions from:  github.com/dmalec/RTClib   by  MrAlvin 2012-02-27
 // Merged DS3231 & DS3234 functions from: github/coobro/RTClib  by  MrAlvin 2012-02-27
 
@@ -11,7 +12,7 @@
 #ifndef __RTCLIB_H__
 #define __RTCLIB_H__
  
-
+#define Chronodot RTC_DS3231
 
 // Simple general-purpose date/time class (no TZ / DST / leap second handling!)
 class DateTime {
