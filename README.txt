@@ -1,6 +1,6 @@
 A Real Time Clock (RTC) Library for DS1307 compatible chips.
 -------------------------------------------------------------
-Tested to compile under Arduino 1.0 and 0021
+Tested to compile under Arduino 1.0, 0023, 0022 and 0021
 
 Also inclues DS1307, DS3231 (Chronodot) and DS3234-SPI specific functions.
 

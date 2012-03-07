@@ -18,6 +18,8 @@
 //   2. Comment out the section in setup that writes to memory and upload the sketch again
 //   3. You can now disconnect power, reconnect power and see the values being read and printed 
 
+// by github.com/dmalec
+
 #include <Wire.h>
 #include <SPI.h>  // not used here, but needed to prevent a RTClib compile error
 #include "RTClib.h"
