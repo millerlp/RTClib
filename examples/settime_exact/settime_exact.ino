@@ -31,7 +31,7 @@
 
 void setup() {
   int timeset[] = {2015,	5,	27,	12,	30,	0};
-				//   year  	mo  	day  hr  min  sec
+		//   year,  	mo,  	day,  hr,  min,  sec
   Wire.begin();
   Serial.begin(57600);
   // program to precisely set Chronodot
