@@ -13,7 +13,7 @@
  #define PROGMEM
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
  #define WIRE Wire1
- ##define _BV(bit) (1 << (bit))
+ #define _BV(bit) (1 << (bit))
 #endif
 
 #define DS1307_ADDRESS 0x68
