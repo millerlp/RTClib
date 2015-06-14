@@ -27,26 +27,40 @@
 
 #include "Wire.h"
 
+// AVR-based Arduinos (Uno, MEGA etc) use the Wire bus for I2C
+// with the pins located near the Aref pin. 
+// SAM-based Arduinos (Due) call the bus attached to those
+// same pins near Aref "Wire1", so this little block of code
+// automagically swaps Wire or Wire1 in as necessary in the 
+// main code below. 
+#ifdef __AVR__
+	#define WIRE Wire	// For AVR-based Arduinos
+#else
+	#define WIRE Wire1	// for Arduino DUE, Wire1 I2C bus
+#endif
 
 
 void setup() {
-  int timeset[] = {2015,	5,	27,	15,	16,	0};
+	//****************************************************
+	// Enter the date and time values on the line below
+  int timeset[] = {2015,	6,	13,	15,	16,	0};
 		//   year,  	mo,  	day,  hr,  min,  sec
-  Wire.begin();
+	//****************************************************
+  WIRE.begin();
   Serial.begin(57600);
   // program to precisely set Chronodot
-  Wire.beginTransmission(0x68); // address of DS3231 or DS1307
-  Wire.write(0x00); // select register
+  WIRE.beginTransmission(0x68); // address of DS3231 or DS1307
+  WIRE.write(0x00); // select register
   
-  Wire.write(toBCD(timeset[5])); // seconds
-  Wire.write(toBCD(timeset[4])); // minutes
-  Wire.write(toBCD(timeset[3])); // hours
-  Wire.write(weekday(timeset[0],timeset[1],timeset[2])); // day of week
-  Wire.write(toBCD(timeset[2])); // day of month
-  Wire.write(toBCD(timeset[1])); // month
-  Wire.write(toBCD(timeset[0])); // year
+  WIRE.write(toBCD(timeset[5])); // seconds
+  WIRE.write(toBCD(timeset[4])); // minutes
+  WIRE.write(toBCD(timeset[3])); // hours
+  WIRE.write(weekday(timeset[0],timeset[1],timeset[2])); // day of week
+  WIRE.write(toBCD(timeset[2])); // day of month
+  WIRE.write(toBCD(timeset[1])); // month
+  WIRE.write(toBCD(timeset[0])); // year
   
-  Wire.endTransmission();
+  WIRE.endTransmission();
 }
 
 void loop() {
