@@ -144,12 +144,19 @@ uint32_t DateTime::unixtime(void) const {
 const char* months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 // as a string
+// Call this function on a date time object by passing a character array buffer
+// and the length of the buffer (20)
+// For example:
+//	DateTime now = rtc.now(); // grab a timestamp 
+//	char buf[20]; // declare a string buffer to hold the result
+//	now.toString(buf, 20); // create the string, which will be put into 'buf'
+//	Serial.print(buf); // print the string to the serial monitor
 char* DateTime::toString(char* buf, int maxlen) const
 {
-    snprintf(buf,maxlen,"%s %02u %04u %02u:%02u:%02u",
-             months[m-1],
-             d,
+    snprintf(buf,maxlen,"%04u-%02u-%02u %02u:%02u:%02u",
              2000 + yOff,
+			 m,
+             d,
              hh,
              mm,
              ss
