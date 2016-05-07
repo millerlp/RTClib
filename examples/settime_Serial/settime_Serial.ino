@@ -16,7 +16,7 @@
 	2015 7 8 15 12 30
 	
 	Type that in to the serial monitor window, then wait to hit
-	enter until you reach exactly that time. The new time will be
+	Enter until you reach exactly that time. The new time will be
 	uploaded immediately, and the result will be printed to the
 	serial monitor. If you miss your time, you can enter a 
 	new date and time in the same format and try again without
@@ -27,6 +27,19 @@
 #include <Wire.h>
 #include <SPI.h>  // not used here, but needed to prevent a RTClib compile error
 #include "RTClib.h"
+
+
+// AVR-based Arduinos (Uno, MEGA etc) use the Wire bus for I2C
+// with the pins located near the Aref pin. 
+// SAM-based Arduinos (Due) refer to the bus attached to those
+// same pins near Aref as "Wire1", so this little block of code
+// automagically swaps Wire or Wire1 in as necessary in the 
+// main code below. 
+#ifdef __AVR__
+	#define WIRE Wire	// For AVR-based Arduinos
+#else
+	#define WIRE Wire1	// for Arduino DUE, Wire1 I2C bus
+#endif
 
 
 // Setup an instance of DS1307 naming it rtc
@@ -52,7 +65,7 @@ void setup() {
 	}
 	Serial.println(F("Hello"));
 	
-	Wire.begin();
+	WIRE.begin();
 	rtc.begin();
 	
 	Serial.println(F("Enter a new date and time in the following format")); 
