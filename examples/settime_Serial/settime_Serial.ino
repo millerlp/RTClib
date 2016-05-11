@@ -35,11 +35,11 @@
 // same pins near Aref as "Wire1", so this little block of code
 // automagically swaps Wire or Wire1 in as necessary in the 
 // main code below. 
-#ifdef __AVR__
-	#define Wire Wire	// For AVR-based Arduinos
-#elif defined(ARDUINO_SAM_DUE)
-	#define Wire Wire1	// for Arduino DUE, Wire1 I2C bus
-#endif
+//#ifdef __AVR__
+//	#define Wire Wire	// For AVR-based Arduinos
+//#elif defined(ARDUINO_SAM_DUE)
+//	#define Wire Wire1	// for Arduino DUE, Wire1 I2C bus
+//#endif
 
 
 // Setup an instance of DS1307 naming it rtc
@@ -65,8 +65,8 @@ void setup() {
 	}
 	Serial.println(F("Hello"));
 	
-	Wire.begin();
-	rtc.begin();
+	//Wire.begin();
+	rtc.begin();  // Calls Wire.begin() internally
 	
 	Serial.println(F("Enter a new date and time in the following format")); 
 	Serial.println(F("all on one line: "));

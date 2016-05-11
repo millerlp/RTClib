@@ -14,7 +14,7 @@ RTC_DS3231 rtc;
 
 void setup () {
     Serial.begin(57600);
-    Wire.begin();
+    //Wire.begin();
     rtc.begin();
     
   rtc.adjust(DateTime(__DATE__, __TIME__));
