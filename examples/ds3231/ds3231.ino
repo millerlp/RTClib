@@ -4,6 +4,12 @@
 #include <SPI.h>  // not used here, but needed to prevent a RTClib compile error
 #include <RTClib.h>
 
+//#ifdef __AVR__
+//	#define WIRE Wire	// For AVR-based Arduinos
+//#elif defined(ARDUINO_SAM_DUE)
+//	#define WIRE Wire1	// for Arduino DUE, Wire1 I2C bus
+//#endif
+
 RTC_DS3231 rtc;
 
 void setup () {

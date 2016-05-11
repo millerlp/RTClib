@@ -36,9 +36,9 @@
 // automagically swaps Wire or Wire1 in as necessary in the 
 // main code below. 
 #ifdef __AVR__
-	#define WIRE Wire	// For AVR-based Arduinos
+	#define Wire Wire	// For AVR-based Arduinos
 #elif defined(ARDUINO_SAM_DUE)
-	#define WIRE Wire1	// for Arduino DUE, Wire1 I2C bus
+	#define Wire Wire1	// for Arduino DUE, Wire1 I2C bus
 #endif
 
 
@@ -65,7 +65,7 @@ void setup() {
 	}
 	Serial.println(F("Hello"));
 	
-	WIRE.begin();
+	Wire.begin();
 	rtc.begin();
 	
 	Serial.println(F("Enter a new date and time in the following format")); 
