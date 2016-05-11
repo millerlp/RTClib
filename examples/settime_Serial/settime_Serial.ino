@@ -37,7 +37,7 @@
 // main code below. 
 #ifdef __AVR__
 	#define WIRE Wire	// For AVR-based Arduinos
-#else
+#elif defined(ARDUINO_SAM_DUE)
 	#define WIRE Wire1	// for Arduino DUE, Wire1 I2C bus
 #endif
 

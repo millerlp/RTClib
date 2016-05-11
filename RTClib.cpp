@@ -9,7 +9,10 @@
 #ifdef __AVR__
  #include <avr/pgmspace.h>
  #define WIRE Wire
-#else
+#elif defined(ESP8266)	// untested
+	#include <pgmspace.h> 
+	#define WIRE Wire	// untested
+#elif defined(ARDUINO_SAM_DUE)
  #define PROGMEM
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
  #define WIRE Wire1
