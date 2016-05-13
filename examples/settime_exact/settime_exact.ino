@@ -4,6 +4,8 @@
 	This sketch sets the date and time of a DS1307 or DS3231 real
 	time clock chip.
 	
+	Note that this sketch doesn't use the RTClib library functions
+	
 	Usage: 
 	1. Enter a year, month, day, hour, minute, and seconds values in the
 	fields of "timeset" below. Enter the hour value using 24-hr 
@@ -35,7 +37,7 @@
 // main code below. 
 #ifdef __AVR__
 	#define WIRE Wire	// For AVR-based Arduinos
-#else
+#elif defined(ARDUINO_SAM_DUE)
 	#define WIRE Wire1	// for Arduino DUE, Wire1 I2C bus
 #endif
 

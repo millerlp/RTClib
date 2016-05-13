@@ -8,8 +8,8 @@ RTC_DS1307 rtc;
 
 void setup () {
     Serial.begin(57600);
-    Wire.begin();
-    rtc.begin();
+    // Wire.begin();
+    rtc.begin();	// Includes a call to Wire.begin()
 
   if (! rtc.isrunning()) {
     Serial.println("rtc is NOT running!");

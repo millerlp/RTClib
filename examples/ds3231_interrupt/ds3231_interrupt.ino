@@ -16,8 +16,8 @@ void setup () {
   digitalWrite(INTERRUPT_PIN, HIGH);
   
   Serial.begin(57600);
-  Wire.begin();
-  rtc.begin();
+  // Wire.begin();
+  rtc.begin();	// Includes a call to Wire.begin()
     
   rtc.adjust(DateTime(__DATE__, __TIME__));
   DateTime now = rtc.now();
