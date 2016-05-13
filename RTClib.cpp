@@ -6,12 +6,12 @@
 //#include <avr/pgmspace.h>
 #include "RTClib.h"
 
-#ifdef __AVR__
+#ifdef __AVR__		// For 8-bit AVR chips (Uno etc.)
  #include <avr/pgmspace.h>
  //#define WIRE Wire
 #elif defined(ESP8266)	// untested
 	#include <pgmspace.h> 
-#elif defined(ARDUINO_SAM_DUE)
+#elif defined(ARDUINO_SAM_DUE)	// For Arduino Due
  #define PROGMEM
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
  #define Wire Wire1  // redefine all Wire calls as Wire1 for Due

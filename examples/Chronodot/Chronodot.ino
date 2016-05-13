@@ -8,8 +8,8 @@ Chronodot rtc;
 
 void setup () {
     Serial.begin(57600);
-    Wire.begin();
-    rtc.begin();
+    // Wire.begin();
+    rtc.begin();	// Includes a call to Wire.begin()
     
   rtc.adjust(DateTime(__DATE__, __TIME__));
   if (! rtc.isrunning()) {

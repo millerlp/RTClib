@@ -12,8 +12,8 @@ RTC_DS1307 rtc;     // Setup an instance of DS1307 naming it RTC
 
 void setup () {
     Serial.begin(57600); // Set serial port speed
-    Wire.begin(); // Start the I2C
-    rtc.begin();  // Init RTC
+    // Wire.begin(); // Start the I2C
+    rtc.begin();  // Init RTC, includes a call to Wire.begin()
     rtc.adjust(DateTime(__DATE__, __TIME__));  // Time and date is expanded to date and time on your computer at compiletime
     Serial.print('Time and date set');
 }
