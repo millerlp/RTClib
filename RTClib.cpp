@@ -8,11 +8,13 @@
 
 #ifdef __AVR__
  #include <avr/pgmspace.h>
- #define WIRE Wire
-#else
+ //#define WIRE Wire
+#elif defined(ESP8266)	// untested
+	#include <pgmspace.h> 
+#elif defined(ARDUINO_SAM_DUE)
  #define PROGMEM
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
- #define WIRE Wire1
+ #define Wire Wire1  // redefine all Wire calls as Wire1 for Due
  #define _BV(bit) (1 << (bit))
 #endif
 
@@ -180,11 +182,11 @@ static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
 // Arduino 1.0 addition
 
 #if (ARDUINO >= 100)
-	#define WW_  WIRE.write
-	#define WR_  WIRE.read
+	#define WW_  Wire.write
+	#define WR_  Wire.read
 #else
-	#define WW_  WIRE.send
-	#define WR_  WIRE.receive
+	#define WW_  Wire.send
+	#define WR_  Wire.receive
 #endif	
 	
 #if ARDUINO < 100
@@ -200,47 +202,48 @@ static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
 // RTC_DS1307 implementation
 
 uint8_t RTC_DS1307::begin(void) {
+	Wire.begin();
   return 1;
 }
 
 
 uint8_t RTC_DS1307::isrunning(void) {
-  WIRE.beginTransmission(DS1307_ADDRESS);
-  WIRE.write(i);	
-  WIRE.endTransmission();
+  Wire.beginTransmission(DS1307_ADDRESS);
+  Wire.write(i);	
+  Wire.endTransmission();
 
-  WIRE.requestFrom(DS1307_ADDRESS, 1);
-  uint8_t ss = WIRE.read();
+  Wire.requestFrom(DS1307_ADDRESS, 1);
+  uint8_t ss = Wire.read();
   return !(ss>>7);
 }
 
 void RTC_DS1307::adjust(const DateTime& dt) {
-    WIRE.beginTransmission(DS1307_ADDRESS);
-    WIRE.write(i);
-    WIRE.write(bin2bcd(dt.second()));
-    WIRE.write(bin2bcd(dt.minute()));
-    WIRE.write(bin2bcd(dt.hour()));
-    WIRE.write(bin2bcd(0));
-    WIRE.write(bin2bcd(dt.day()));
-    WIRE.write(bin2bcd(dt.month()));
-    WIRE.write(bin2bcd(dt.year() - 2000));
-    WIRE.write(i);
-    WIRE.endTransmission();
+    Wire.beginTransmission(DS1307_ADDRESS);
+    Wire.write(i);
+    Wire.write(bin2bcd(dt.second()));
+    Wire.write(bin2bcd(dt.minute()));
+    Wire.write(bin2bcd(dt.hour()));
+    Wire.write(bin2bcd(0));
+    Wire.write(bin2bcd(dt.day()));
+    Wire.write(bin2bcd(dt.month()));
+    Wire.write(bin2bcd(dt.year() - 2000));
+    Wire.write(i);
+    Wire.endTransmission();
 }
 
 DateTime RTC_DS1307::now() {
-  WIRE.beginTransmission(DS1307_ADDRESS);
-  WIRE.write(i);	
-  WIRE.endTransmission();
+  Wire.beginTransmission(DS1307_ADDRESS);
+  Wire.write(i);	
+  Wire.endTransmission();
   
-  WIRE.requestFrom(DS1307_ADDRESS, 7);
-  uint8_t ss = bcd2bin(WIRE.read() & 0x7F);
-  uint8_t mm = bcd2bin(WIRE.read());
-  uint8_t hh = bcd2bin(WIRE.read());
-  WIRE.read();
-  uint8_t d = bcd2bin(WIRE.read());
-  uint8_t m = bcd2bin(WIRE.read());
-  uint16_t y = bcd2bin(WIRE.read()) + 2000;
+  Wire.requestFrom(DS1307_ADDRESS, 7);
+  uint8_t ss = bcd2bin(Wire.read() & 0x7F);
+  uint8_t mm = bcd2bin(Wire.read());
+  uint8_t hh = bcd2bin(Wire.read());
+  Wire.read();
+  uint8_t d = bcd2bin(Wire.read());
+  uint8_t m = bcd2bin(Wire.read());
+  uint16_t y = bcd2bin(Wire.read()) + 2000;
   
   return DateTime (y, m, d, hh, mm, ss);
 }
@@ -248,13 +251,13 @@ DateTime RTC_DS1307::now() {
 uint8_t RTC_DS1307::readMemory(uint8_t offset, uint8_t* data, uint8_t length) {
   uint8_t bytes_read = 0;
 
-  WIRE.beginTransmission(DS1307_ADDRESS);
-  WIRE.write(0x08 + offset);
-  WIRE.endTransmission();
+  Wire.beginTransmission(DS1307_ADDRESS);
+  Wire.write(0x08 + offset);
+  Wire.endTransmission();
   
-  WIRE.requestFrom((uint8_t)DS1307_ADDRESS, (uint8_t)length);
-  while (WIRE.available() > 0 && bytes_read < length) {
-    data[bytes_read] = WIRE.read();
+  Wire.requestFrom((uint8_t)DS1307_ADDRESS, (uint8_t)length);
+  while (Wire.available() > 0 && bytes_read < length) {
+    data[bytes_read] = Wire.read();
     bytes_read++;
   }
 
@@ -264,15 +267,15 @@ uint8_t RTC_DS1307::readMemory(uint8_t offset, uint8_t* data, uint8_t length) {
 uint8_t RTC_DS1307::writeMemory(uint8_t offset, uint8_t* data, uint8_t length) {
   uint8_t bytes_written;
 
-  WIRE.beginTransmission(DS1307_ADDRESS);
-  WIRE.write(0x08 + offset);
+  Wire.beginTransmission(DS1307_ADDRESS);
+  Wire.write(0x08 + offset);
 #if (ARDUINO >= 100)
-  bytes_written =  WIRE.write(data, length);
-  WIRE.endTransmission();
+  bytes_written =  Wire.write(data, length);
+  Wire.endTransmission();
   return bytes_written;
 #else
-  WIRE.write(data, length);
-  WIRE.endTransmission();
+  Wire.write(data, length);
+  Wire.endTransmission();
   return length;
 #endif  
 }
@@ -282,50 +285,51 @@ uint8_t RTC_DS1307::writeMemory(uint8_t offset, uint8_t* data, uint8_t length) {
 
 uint8_t RTC_DS3231::begin(void)
 {
+	Wire.begin();
     return 1;
 }
 
 uint8_t RTC_DS3231::isrunning(void)
 {
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0);
-    WIRE.endTransmission();
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0);
+    Wire.endTransmission();
 
-    WIRE.requestFrom(DS3231_ADDRESS, 1);
-    uint8_t ss = WIRE.RECEIVE();
+    Wire.requestFrom(DS3231_ADDRESS, 1);
+    uint8_t ss = Wire.RECEIVE();
     return !(ss>>7);
 }
 
 void RTC_DS3231::adjust(const DateTime& dt)
 {
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0);
-    WIRE.write(bin2bcd(dt.second()));
-    WIRE.write(bin2bcd(dt.minute()));
-    WIRE.write(bin2bcd(dt.hour()));
-    WIRE.write(bin2bcd(0));
-    WIRE.write(bin2bcd(dt.day()));
-    WIRE.write(bin2bcd(dt.month()));
-    WIRE.write(bin2bcd(dt.year() - 2000));
-    WIRE.write(0);
-    WIRE.endTransmission();
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0);
+    Wire.write(bin2bcd(dt.second()));
+    Wire.write(bin2bcd(dt.minute()));
+    Wire.write(bin2bcd(dt.hour()));
+    Wire.write(bin2bcd(0));
+    Wire.write(bin2bcd(dt.day()));
+    Wire.write(bin2bcd(dt.month()));
+    Wire.write(bin2bcd(dt.year() - 2000));
+    Wire.write(0);
+    Wire.endTransmission();
 }
 
 DateTime RTC_DS3231::now()
 {
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0);
-    WIRE.endTransmission();
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0);
+    Wire.endTransmission();
 
-    WIRE.requestFrom(DS3231_ADDRESS, 19);
+    Wire.requestFrom(DS3231_ADDRESS, 19);
     
-    uint8_t ss = bcd2bin(WIRE.RECEIVE() & 0x7F);
-    uint8_t mm = bcd2bin(WIRE.RECEIVE());
-    uint8_t hh = bcd2bin(WIRE.RECEIVE());
-    WIRE.RECEIVE();
-    uint8_t d = bcd2bin(WIRE.RECEIVE());
-    uint8_t m = bcd2bin(WIRE.RECEIVE());
-    uint16_t y = bcd2bin(WIRE.RECEIVE()) + 2000;
+    uint8_t ss = bcd2bin(Wire.RECEIVE() & 0x7F);
+    uint8_t mm = bcd2bin(Wire.RECEIVE());
+    uint8_t hh = bcd2bin(Wire.RECEIVE());
+    Wire.RECEIVE();
+    uint8_t d = bcd2bin(Wire.RECEIVE());
+    uint8_t m = bcd2bin(Wire.RECEIVE());
+    uint16_t y = bcd2bin(Wire.RECEIVE()) + 2000;
 
     return DateTime (y, m, d, hh, mm, ss);
 }
@@ -334,34 +338,34 @@ float RTC_DS3231::getTemperature() {
     // Checks the internal thermometer on the DS3231 and returns the 
     // temperature as a floating-point value.
     byte temp;
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0x11);
-    WIRE.endTransmission();
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0x11);
+    Wire.endTransmission();
 
-    WIRE.requestFrom(DS3231_ADDRESS, 2);
-    temp = WIRE.RECEIVE();  // Here's the MSB
-    return float(temp) + 0.25*(WIRE.RECEIVE()>>6);
+    Wire.requestFrom(DS3231_ADDRESS, 2);
+    temp = Wire.RECEIVE();  // Here's the MSB
+    return float(temp) + 0.25*(Wire.RECEIVE()>>6);
 }
 
 void RTC_DS3231::getA1Time(byte& A1Day, byte& A1Hour, byte& A1Minute, byte& A1Second, byte& AlarmBits, bool& A1Dy, bool& A1h12, bool& A1PM) {
     byte temp_buffer;
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0x07);
-    WIRE.endTransmission();
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0x07);
+    Wire.endTransmission();
 
-    WIRE.requestFrom(DS3231_ADDRESS, 4);
+    Wire.requestFrom(DS3231_ADDRESS, 4);
 
-    temp_buffer = WIRE.RECEIVE();   // Get A1M1 and A1 Seconds
+    temp_buffer = Wire.RECEIVE();   // Get A1M1 and A1 Seconds
     A1Second    = bcd2bin(temp_buffer & 0b01111111);
     // put A1M1 bit in position 0 of DS3231_AlarmBits.
     AlarmBits   = AlarmBits | (temp_buffer & 0b10000000)>>7;
 
-    temp_buffer     = WIRE.RECEIVE();   // Get A1M2 and A1 minutes
+    temp_buffer     = Wire.RECEIVE();   // Get A1M2 and A1 minutes
     A1Minute    = bcd2bin(temp_buffer & 0b01111111);
     // put A1M2 bit in position 1 of DS3231_AlarmBits.
     AlarmBits   = AlarmBits | (temp_buffer & 0b10000000)>>6;
 
-    temp_buffer = WIRE.RECEIVE();   // Get A1M3 and A1 Hour
+    temp_buffer = Wire.RECEIVE();   // Get A1M3 and A1 Hour
     // put A1M3 bit in position 2 of DS3231_AlarmBits.
     AlarmBits   = AlarmBits | (temp_buffer & 0b10000000)>>5;
     // determine A1 12/24 mode
@@ -373,7 +377,7 @@ void RTC_DS3231::getA1Time(byte& A1Day, byte& A1Hour, byte& A1Minute, byte& A1Se
         A1Hour  = bcd2bin(temp_buffer & 0b00111111);   // 24-hour
     }
 
-    temp_buffer = WIRE.RECEIVE();   // Get A1M4 and A1 Day/Date
+    temp_buffer = Wire.RECEIVE();   // Get A1M4 and A1 Day/Date
     // put A1M3 bit in position 3 of DS3231_AlarmBits.
     AlarmBits   = AlarmBits | (temp_buffer & 0b10000000)>>4;
     // determine A1 day or date flag
@@ -389,17 +393,17 @@ void RTC_DS3231::getA1Time(byte& A1Day, byte& A1Hour, byte& A1Minute, byte& A1Se
 
 void RTC_DS3231::getA2Time(byte& A2Day, byte& A2Hour, byte& A2Minute, byte& AlarmBits, bool& A2Dy, bool& A2h12, bool& A2PM) {
     byte temp_buffer;
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0x0b);
-    WIRE.endTransmission();
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0x0b);
+    Wire.endTransmission();
 
-    WIRE.requestFrom(DS3231_ADDRESS, 3); 
-    temp_buffer = WIRE.RECEIVE();   // Get A2M2 and A2 Minutes
+    Wire.requestFrom(DS3231_ADDRESS, 3); 
+    temp_buffer = Wire.RECEIVE();   // Get A2M2 and A2 Minutes
     A2Minute    = bcd2bin(temp_buffer & 0b01111111);
     // put A2M2 bit in position 4 of DS3231_AlarmBits.
     AlarmBits   = AlarmBits | (temp_buffer & 0b10000000)>>3;
 
-    temp_buffer = WIRE.RECEIVE();   // Get A2M3 and A2 Hour
+    temp_buffer = Wire.RECEIVE();   // Get A2M3 and A2 Hour
     // put A2M3 bit in position 5 of DS3231_AlarmBits.
     AlarmBits   = AlarmBits | (temp_buffer & 0b10000000)>>2;
     // determine A2 12/24 mode
@@ -411,7 +415,7 @@ void RTC_DS3231::getA2Time(byte& A2Day, byte& A2Hour, byte& A2Minute, byte& Alar
         A2Hour  = bcd2bin(temp_buffer & 0b00111111);   // 24-hour
     }
 
-    temp_buffer = WIRE.RECEIVE();   // Get A2M4 and A1 Day/Date
+    temp_buffer = Wire.RECEIVE();   // Get A2M4 and A1 Day/Date
     // put A2M4 bit in position 6 of DS3231_AlarmBits.
     AlarmBits   = AlarmBits | (temp_buffer & 0b10000000)>>1;
     // determine A2 day or date flag
@@ -436,12 +440,12 @@ void RTC_DS3231::setAlarm2Simple(byte hour, byte minute) {
 void RTC_DS3231::setA1Time(byte A1Day, byte A1Hour, byte A1Minute, byte A1Second, byte AlarmBits, bool A1Dy, bool A1h12, bool A1PM) {
     //  Sets the alarm-1 date and time on the DS3231, using A1* information
     byte temp_buffer;
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0x07);    // A1 starts at 07h
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0x07);    // A1 starts at 07h
     // Send A1 second and A1M1
-    WIRE.write(bin2bcd(A1Second) | ((AlarmBits & 0b00000001) << 7));
+    Wire.write(bin2bcd(A1Second) | ((AlarmBits & 0b00000001) << 7));
     // Send A1 Minute and A1M2
-    WIRE.write(bin2bcd(A1Minute) | ((AlarmBits & 0b00000010) << 6));
+    Wire.write(bin2bcd(A1Minute) | ((AlarmBits & 0b00000010) << 6));
     // Figure out A1 hour 
     if (A1h12) {
         // Start by converting existing time to h12 if it was given in 24h.
@@ -465,25 +469,25 @@ void RTC_DS3231::setA1Time(byte A1Day, byte A1Hour, byte A1Minute, byte A1Second
     }
     temp_buffer = temp_buffer | ((AlarmBits & 0b00000100)<<5);
     // A1 hour is figured out, send it
-    WIRE.write(temp_buffer); 
+    Wire.write(temp_buffer); 
     // Figure out A1 day/date and A1M4
     temp_buffer = ((AlarmBits & 0b00001000)<<4) | bin2bcd(A1Day);
     if (A1Dy) {
         // Set A1 Day/Date flag (Otherwise it's zero)
         temp_buffer = temp_buffer | 0b01000000;
     }
-    WIRE.write(temp_buffer);
+    Wire.write(temp_buffer);
     // All done!
-    WIRE.endTransmission();
+    Wire.endTransmission();
 }
 
 void RTC_DS3231::setA2Time(byte A2Day, byte A2Hour, byte A2Minute, byte AlarmBits, bool A2Dy, bool A2h12, bool A2PM) {
     //  Sets the alarm-2 date and time on the DS3231, using A2* information
     byte temp_buffer;
-    WIRE.beginTransmission(DS3231_ADDRESS);
-    WIRE.write(0x0b);    // A1 starts at 0bh
+    Wire.beginTransmission(DS3231_ADDRESS);
+    Wire.write(0x0b);    // A1 starts at 0bh
     // Send A2 Minute and A2M2
-    WIRE.write(bin2bcd(A2Minute) | ((AlarmBits & 0b00010000) << 3));
+    Wire.write(bin2bcd(A2Minute) | ((AlarmBits & 0b00010000) << 3));
     // Figure out A2 hour 
     if (A2h12) {
         // Start by converting existing time to h12 if it was given in 24h.
@@ -508,16 +512,16 @@ void RTC_DS3231::setA2Time(byte A2Day, byte A2Hour, byte A2Minute, byte AlarmBit
     // add in A2M3 bit
     temp_buffer = temp_buffer | ((AlarmBits & 0b00100000)<<2);
     // A2 hour is figured out, send it
-    WIRE.write(temp_buffer); 
+    Wire.write(temp_buffer); 
     // Figure out A2 day/date and A2M4
     temp_buffer = ((AlarmBits & 0b01000000)<<1) | bin2bcd(A2Day);
     if (A2Dy) {
         // Set A2 Day/Date flag (Otherwise it's zero)
         temp_buffer = temp_buffer | 0b01000000;
     }
-    WIRE.write(temp_buffer);
+    Wire.write(temp_buffer);
     // All done!
-    WIRE.endTransmission();
+    Wire.endTransmission();
 }
 
 void RTC_DS3231::turnOnAlarm(byte Alarm) {
@@ -639,30 +643,30 @@ bool RTC_DS3231::oscillatorCheck() {
 byte RTC_DS3231::readControlByte(bool which) {
     // Read selected control byte
     // first byte (0) is 0x0e, second (1) is 0x0f
-    WIRE.beginTransmission(DS3231_ADDRESS);
+    Wire.beginTransmission(DS3231_ADDRESS);
     if (which) {
         // second control byte
-        WIRE.write(0x0f);
+        Wire.write(0x0f);
     } else {
         // first control byte
-        WIRE.write(0x0e);
+        Wire.write(0x0e);
     }
-    WIRE.endTransmission();
-    WIRE.requestFrom(DS3231_ADDRESS, 1);
-    return WIRE.RECEIVE();  
+    Wire.endTransmission();
+    Wire.requestFrom(DS3231_ADDRESS, 1);
+    return Wire.RECEIVE();  
 }
 
 void RTC_DS3231::writeControlByte(byte control, bool which) {
     // Write the selected control byte.
     // which=false -> 0x0e, true->0x0f.
-    WIRE.beginTransmission(DS3231_ADDRESS);
+    Wire.beginTransmission(DS3231_ADDRESS);
     if (which) {
-        WIRE.write(0x0f);
+        Wire.write(0x0f);
     } else {
-        WIRE.write(0x0e);
+        Wire.write(0x0e);
     }
-    WIRE.write(control);
-    WIRE.endTransmission();
+    Wire.write(control);
+    Wire.endTransmission();
 }
 
 
